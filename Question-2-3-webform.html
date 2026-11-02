@@ -29,23 +29,23 @@
         <h1>Feedback form</h1>
     <form>
         <div class="control">
-          <label>Full name <span class="required">*</span></label><input id="name" name="name" type="text" />
+          <label for="name">Full name <span class="required">* (required)</span></label><input id="name" name="name" type="text" aria-required="true" />
         </div>
         <div class="control">
-          <label>Biography</label><textarea id="biography" name="biography" type="text"></textarea>
-          <span>Include examples on your skills in JavaScript.</span>
+          <label for="biography">Biography <span class="required">* (required)</span></label><textarea id="biography" name="biography" aria-required="true" aria-describedby="biography_hint"></textarea>
+          <span id="biography_hint">Include examples on your skills in JavaScript.</span>
         </div>
-        
-          <div>Gender</div>
+        <fieldset>
+          <legend>Gender <span class="required">* (required)</span></legend>
           <div class="control">
-            <input id="gender_male" name="gender" type="radio" value="male" /><label>Male</label>
+            <input id="gender_male" name="gender" type="radio" value="male" /><label for="gender_male">Male</label>
           </div>
           <div class="control">
-            <input id="gender_female" name="gender" type="radio" value="female" /><label>Female</label>
+            <input id="gender_female" name="gender" type="radio" value="female" /><label for="gender_female">Female</label>
           </div>
-        
+        </fieldset>
         <div class="control">
-          <input id="accept_agbs" name="accept_agbs" type="checkbox" value="1" /><label>I accept the terms and conditions</label>
+          <input id="accept_agbs" name="accept_agbs" type="checkbox" value="1" aria-required="true" /><label for="accept_agbs">I accept the terms and conditions <span class="required">* (required)</span></label>
         </div>
         <div class="control">
           <input name="validate" type="hidden" value="1" /><input type="submit" value="Register" />
@@ -76,7 +76,7 @@
       
           if ((value = $.urlParam(input)) === null) {
             if ($('fieldset.errors').length === 0) {
-              $('form').prepend('<fieldset class="errors"><legend>Errors</legend><ul></ul></fieldset>');
+              $('form').prepend('<fieldset class="errors" tabindex="-1"><legend>Errors</legend><ul></ul></fieldset>');
             }
       
             $referencedElement = null;
@@ -92,18 +92,18 @@
               $referencedElement = $input;
             }
       // R.G. hint: fix next line ;)
-            $error = $('<a>' + message + '</a>');
+            $error = $('<a class="error" id="' + input + '_error" href="#' + $referencedElement.attr('id') + '">' + message + '</a>');
             $error.click(function (e) {
               // If we rely on the link's href pointing to the input's ID, it doesn't trigger forms mode in screen readers
               $referencedElement.focus();
               return e.preventDefault();
             });
-            $elementToDescribe.attr('aria-describedby', input + '_description');
+            $elementToDescribe.attr('aria-describedby', (input + '_error ' + ($elementToDescribe.attr('aria-describedby') || '')).trim());
             $errorContainer.append('<li>').find('li:last').append($error);
       
             if ($(':not(form):focus').length === 0) {
               // See https://stackoverflow.com/questions/46134247/jquery-setting-focus-doesnt-work-in-ie11/
-            
+              setTimeout(function () { $('fieldset.errors').focus(); }, 100);
             }
           } else {
             if ($input.is(':checkbox')) {
@@ -117,7 +117,7 @@
             }
           }
         };
-      
+            
         $(document).ready(function () {
           if ($.urlParam('validate')) {
             validateInput('name', 'Please enter your name!');
@@ -128,9 +128,13 @@
             if ($('.error').length === 0) {
               return alert('All inputs are valid.');
             }
-          }
-        });
-      }).call(void 0);</script>
+          }      
+        });     // Labels with for: The labels weren’t connected to their inputs, so screen readers didn’t read the field names. I matched each label’s for to the input’s id. A nice bonus is that clicking the label now puts you in the field.
+          // A red star by itself doesn’t help screen reader users or people who are colour-blind, so I wrote out “(required)” next to it. I also added aria-required="true" so assistive tech knows the field is required.
+          //The instruction text wasn’t linked to the textarea at all. I gave it an id and pointed to it with aria-describedby, so it gets read out when you focus the field. I also removed type="text" because textareas don’t use a type
+          //Gender fieldset and legend: I grouped the radio buttons in a <fieldset> with a <legend>, so a screen reader says “Gender” along with “Male” or “Female.” The JavaScript also needs a fieldset to attach the gender error to.
+          // Checkbox: Same fixes as the other fields: a proper label with for and a required marker.
+      }).call(void 0);</script>  
                 
         </body>
       </html>
