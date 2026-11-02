@@ -134,6 +134,15 @@
           //The instruction text wasn’t linked to the textarea at all. I gave it an id and pointed to it with aria-describedby, so it gets read out when you focus the field. I also removed type="text" because textareas don’t use a type
           //Gender fieldset and legend: I grouped the radio buttons in a <fieldset> with a <legend>, so a screen reader says “Gender” along with “Male” or “Female.” The JavaScript also needs a fieldset to attach the gender error to.
           // Checkbox: Same fixes as the other fields: a proper label with for and a required marker.
+
+          // Errors fieldset tabindex="-1": Fieldsets can’t usually get focus. This lets the script focus it without adding it to the Tab order.
+//The $error line: The error link had no href or class, so keyboards couldn’t reach it and the error count was always 0. I added class="error", an href to the problem field, and an id so the field can point back to it.
+//The aria-describedby line: It pointed to ids that didn’t exist. Now each field points to its own error, plus the biography hint.
+//The setTimeout focus line: After Register is pressed, focus moves to the Errors box so users know right away something’s wrong. The delay makes sure the box exists first.
+
+
+
+          
       }).call(void 0);</script>  
                 
         </body>
